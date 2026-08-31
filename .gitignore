@@ -4,3 +4,6 @@ node_modules/
 dist/
 drizzle/meta/
 *.log
+
+# Private notes - strategy, business model, unreleased params
+docs/private/
