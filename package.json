@@ -1,0 +1,26 @@
+{
+  "name": "art-stock",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "snapshot": "tsx src/jobs/snapshot.ts",
+    "add": "tsx src/scripts/add-artist.ts",
+    "search": "tsx src/scripts/search.ts",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "curve": "tsx src/scripts/curve-check.ts",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}
