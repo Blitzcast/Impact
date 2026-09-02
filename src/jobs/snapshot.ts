@@ -1,7 +1,7 @@
 import { eq, ne, inArray, sql } from 'drizzle-orm'
-import { db, sql as client } from '../db/index.js'
-import { artists, artistSnapshots } from '../db/schema.js'
-import { getArtists } from '../lib/spotify.js'
+import { getDb, closeDb } from '../db/index'
+import { artists, artistSnapshots } from '../db/schema'
+import { getArtists } from '../lib/spotify'
 
 /**
  * THE JOB WITH A CLOCK ON IT.
@@ -26,6 +26,7 @@ async function main() {
 
   // Dead artists are skipped forever - their Spotify page 404s and would
   // otherwise fail this job every night for the rest of time.
+  const db = getDb()
   const tracked = await db
     .select({ id: artists.id, spotifyId: artists.spotifyId, name: artists.name })
     .from(artists)
@@ -100,4 +101,4 @@ main()
     console.error('Snapshot failed:', err)
     process.exitCode = 1
   })
-  .finally(() => client.end())
+  .finally(() => closeDb())

@@ -1,5 +1,5 @@
-import { buyCostMicros, sellProceedsMicros, feeOn } from './curve.js'
-import { MAX_POSITION_BPS, SELL_COOLDOWN_MS } from './config.js'
+import { buyCostMicros, sellProceedsMicros, feeOn } from './curve'
+import { MAX_POSITION_BPS, SELL_COOLDOWN_MS } from './config'
 
 /**
  * Trade planning - PURE FUNCTIONS ONLY.

@@ -2,6 +2,8 @@ node_modules/
 .env
 .env.local
 dist/
+.next/
+next-env.d.ts
 drizzle/meta/
 *.log
 

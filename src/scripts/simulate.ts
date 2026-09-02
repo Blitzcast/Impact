@@ -1,6 +1,6 @@
-import { planBuy, planSell, ledgerRowsFor, type MarketState, type TraderState, type TradeError } from '../lib/trade.js'
-import { seedSupplyFor, marketCapMicros, spotPriceMicros, formatMicros } from '../lib/curve.js'
-import { STARTING_BALANCE_MICROS, MAX_POSITION_BPS, SELL_COOLDOWN_MS } from '../lib/config.js'
+import { planBuy, planSell, ledgerRowsFor, type MarketState, type TraderState, type TradeError } from '../lib/trade'
+import { seedSupplyFor, marketCapMicros, spotPriceMicros, formatMicros } from '../lib/curve'
+import { STARTING_BALANCE_MICROS, MAX_POSITION_BPS, SELL_COOLDOWN_MS } from '../lib/config'
 
 /**
  * Property-based simulation of the economy.
