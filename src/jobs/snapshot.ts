@@ -2,6 +2,7 @@ import { eq, ne, inArray, sql } from 'drizzle-orm'
 import { getDb, closeDb } from '../db/index'
 import { artists, artistSnapshots } from '../db/schema'
 import { getArtists } from '../lib/spotify'
+import { spotPriceMicros } from '../lib/curve'
 
 /**
  * THE JOB WITH A CLOCK ON IT.
@@ -28,7 +29,7 @@ async function main() {
   // otherwise fail this job every night for the rest of time.
   const db = getDb()
   const tracked = await db
-    .select({ id: artists.id, spotifyId: artists.spotifyId, name: artists.name })
+    .select({ id: artists.id, spotifyId: artists.spotifyId, name: artists.name, supply: artists.supply })
     .from(artists)
     .where(ne(artists.status, 'dead'))
 
@@ -47,13 +48,19 @@ async function main() {
     await db
       .insert(artistSnapshots)
       .values(
-        fetched.map((a) => ({
-          artistId: bySpotifyId.get(a.id)!.id,
-          capturedOn,
-          source: 'spotify',
-          followers: BigInt(a.followers),
-          popularity: a.popularity,
-        })),
+        fetched.map((a) => {
+          const tracked = bySpotifyId.get(a.id)!
+          return {
+            artistId: tracked.id,
+            capturedOn,
+            source: 'spotify',
+            followers: BigInt(a.followers),
+            popularity: a.popularity,
+            // Closing price for the day, so charts don't have to replay trades.
+            supply: tracked.supply,
+            priceMicros: spotPriceMicros(tracked.supply),
+          }
+        }),
       )
       // Re-running the job the same day corrects the row rather than duplicating it.
       .onConflictDoUpdate({
@@ -61,6 +68,8 @@ async function main() {
         set: {
           followers: sql`excluded.followers`,
           popularity: sql`excluded.popularity`,
+          supply: sql`excluded.supply`,
+          priceMicros: sql`excluded.price_micros`,
         },
       })
 

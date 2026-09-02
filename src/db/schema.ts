@@ -110,6 +110,20 @@ export const artistSnapshots = pgTable('artist_snapshots', {
   source: text('source').notNull().default('spotify'),
   followers: bigint('followers', { mode: 'bigint' }),
   popularity: integer('popularity'),
+
+  /**
+   * Daily CLOSING price and supply.
+   *
+   * Fine-grained price history already lives in `trades` (supplyBefore /
+   * supplyAfter / createdAt), so nothing is lost without these. They exist for
+   * two practical reasons: charting a year shouldn't mean replaying every
+   * trade, and days with no trades still need a point. Storing them beside
+   * followers also makes the core "market price vs fundamentals" chart a
+   * single query against one table.
+   */
+  supply: bigint('supply', { mode: 'bigint' }),
+  priceMicros: bigint('price_micros', { mode: 'bigint' }),
+
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   // Makes the job safely re-runnable - run it five times in a day, still one row.

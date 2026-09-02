@@ -47,13 +47,20 @@ export const MIN_SEED_SUPPLY = 1000n
 // ---------------------------------------------------------------------------
 
 /**
- * Trade fee, in basis points. 200 = 2%.
+ * Trade fee, in basis points. 50 = 0.5%.
+ *
+ * Swept in simulation across 200/100/50/25 bps: at 200 the economy burns ~91%
+ * of its money supply and trading grinds down, at 50 it burns ~45% under
+ * absurdly heavy churn. The fee is not what deters manipulation anyway - price
+ * impact on a thin artist dwarfs it - so it can afford to be light.
  *
  * This is BURNED, not redistributed. If it were paid to anyone it would not be
- * a sink and the money supply would still only grow. It also makes wash trading
- * cost 2% a round trip, which is what makes pump-and-dump unprofitable.
+ * a sink and the money supply would still only grow.
+ *
+ * Overridable by env so it can be swept in simulation, and so the production
+ * value need not be committed once there is anything worth attacking.
  */
-export const FEE_BPS = 200n
+export const FEE_BPS = BigInt(process.env.FEE_BPS ?? 50)
 
 /**
  * Cost to list a new artist. Does three jobs at once: it is a sink, it stops

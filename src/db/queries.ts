@@ -1,4 +1,4 @@
-import { desc, gte, ne, inArray } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, ne } from 'drizzle-orm'
 import { getDb, isDbConfigured } from './index'
 import { artists, artistSnapshots } from './schema'
 import { spotPriceMicros, marketCapMicros } from '../lib/curve'
@@ -80,4 +80,44 @@ export async function getMarket(limit = 100): Promise<MarketRow[] | null> {
       followerChangeBps,
     }
   })
+}
+
+/** One day of history: what the market said, and what reality said. */
+export interface PricePoint {
+  day: string
+  priceMicros: bigint | null
+  followers: bigint | null
+}
+
+/**
+ * The series behind the core chart: market price and follower count on the same
+ * dates, from the same table.
+ *
+ * The gap between those two lines is the entire product - "up 300% in listeners
+ * and the market hasn't noticed yet." Reading them from one table keeps them
+ * aligned on the same days by construction, rather than by joining two sources
+ * and hoping the dates line up.
+ *
+ * Note this is the DAILY series. Fine-grained intraday price history lives in
+ * `trades`, which records supply before and after every single one.
+ */
+export async function getPriceSeries(artistId: string, days = 90): Promise<PricePoint[] | null> {
+  if (!isDbConfigured()) return null
+  const since = new Date(Date.now() - days * DAY_MS).toISOString().slice(0, 10)
+
+  const rows = await getDb()
+    .select({
+      day: artistSnapshots.capturedOn,
+      priceMicros: artistSnapshots.priceMicros,
+      followers: artistSnapshots.followers,
+    })
+    .from(artistSnapshots)
+    .where(and(
+      eq(artistSnapshots.artistId, artistId),
+      eq(artistSnapshots.source, 'spotify'),
+      gte(artistSnapshots.capturedOn, since),
+    ))
+    .orderBy(asc(artistSnapshots.capturedOn))
+
+  return rows
 }
