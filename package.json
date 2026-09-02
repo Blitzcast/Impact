@@ -14,7 +14,8 @@
     "db:studio": "drizzle-kit studio",
     "curve": "tsx src/scripts/curve-check.ts",
     "check": "tsc --noEmit",
-    "simulate": "tsx src/scripts/simulate.ts"
+    "simulate": "tsx src/scripts/simulate.ts",
+    "returns": "tsx src/scripts/returns.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
