@@ -46,8 +46,12 @@ function MarketTable({ rows }: { rows: MarketRow[] }) {
             <td className="rank">{String(i + 1).padStart(2, '0')}</td>
             <td>
               <a href={`/artist/${r.id}`} className="artist-cell">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="avatar" src={r.imageUrl ?? undefined} alt="" />
+                {r.imageUrl
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img className="avatar" src={r.imageUrl} alt="" />
+                  // An empty <img> renders as a broken box. A monogram reads as
+                  // deliberate, and most micro-artists have no image at all.
+                  : <span className="avatar avatar-fallback" aria-hidden="true">{r.name.trim().charAt(0).toUpperCase()}</span>}
                 <span className="artist-name">{r.name}</span>
                 {r.status === 'unverified' && <span className="tag">unverified</span>}
               </a>

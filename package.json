@@ -15,7 +15,8 @@
     "curve": "tsx src/scripts/curve-check.ts",
     "check": "tsc --noEmit",
     "simulate": "tsx src/scripts/simulate.ts",
-    "returns": "tsx src/scripts/returns.ts"
+    "returns": "tsx src/scripts/returns.ts",
+    "seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",

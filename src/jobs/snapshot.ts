@@ -1,4 +1,4 @@
-import { eq, ne, inArray, sql } from 'drizzle-orm'
+import { and, eq, ne, notLike, inArray, sql } from 'drizzle-orm'
 import { getDb, closeDb } from '../db/index'
 import { artists, artistSnapshots } from '../db/schema'
 import { getArtists } from '../lib/spotify'
@@ -31,7 +31,9 @@ async function main() {
   const tracked = await db
     .select({ id: artists.id, spotifyId: artists.spotifyId, name: artists.name, supply: artists.supply })
     .from(artists)
-    .where(ne(artists.status, 'dead'))
+    // Seeded demo artists have no real Spotify page. Fetching them would
+    // return nothing and mark every one of them dead on the first run.
+    .where(and(ne(artists.status, 'dead'), notLike(artists.spotifyId, 'seed:%')))
 
   if (tracked.length === 0) {
     console.log('No artists tracked yet. Add some first:  npm run add -- "artist name"')
