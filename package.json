@@ -10,7 +10,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "curve": "tsx src/scripts/curve-check.ts",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "simulate": "tsx src/scripts/simulate.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
