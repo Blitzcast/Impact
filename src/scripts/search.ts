@@ -1,6 +1,6 @@
-import { searchArtists } from '../lib/spotify.js'
-import { seedSupplyFor, spotPriceMicros, marketCapMicros, formatMicros } from '../lib/curve.js'
-import { UNVERIFIED_FOLLOWER_THRESHOLD } from '../lib/config.js'
+import { searchArtists } from '../lib/spotify'
+import { seedSupplyFor, spotPriceMicros, marketCapMicros, formatMicros } from '../lib/curve'
+import { UNVERIFIED_FOLLOWER_THRESHOLD } from '../lib/config'
 
 /**
  * Preview what an artist would look like if listed, without listing them.

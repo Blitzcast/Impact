@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
-import { db, sql } from '../db/index.js'
-import { artists } from '../db/schema.js'
-import { getArtists, searchArtists, type SpotifyArtist } from '../lib/spotify.js'
-import { seedSupplyFor, spotPriceMicros, marketCapMicros, formatMicros } from '../lib/curve.js'
-import { UNVERIFIED_FOLLOWER_THRESHOLD } from '../lib/config.js'
+import { getDb, closeDb } from '../db/index'
+import { artists } from '../db/schema'
+import { getArtists, searchArtists, type SpotifyArtist } from '../lib/spotify'
+import { seedSupplyFor, spotPriceMicros, marketCapMicros, formatMicros } from '../lib/curve'
+import { UNVERIFIED_FOLLOWER_THRESHOLD } from '../lib/config'
 
 /**
  * List an artist. This is the CLI stand-in for what will become the in-app
@@ -40,6 +40,7 @@ async function main() {
     return
   }
 
+  const db = getDb()
   const existing = await db
     .select({ id: artists.id, supply: artists.supply })
     .from(artists)
@@ -82,4 +83,4 @@ main()
     console.error(err.message ?? err)
     process.exitCode = 1
   })
-  .finally(() => sql.end())
+  .finally(() => closeDb())

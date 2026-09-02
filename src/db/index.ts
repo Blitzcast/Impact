@@ -1,15 +1,47 @@
 import 'dotenv/config'
 import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
-import * as schema from './schema.js'
+import * as schema from './schema'
 
-const url = process.env.DATABASE_URL
-if (!url) {
-  throw new Error('DATABASE_URL is not set. Copy .env.example to .env and fill it in.')
+/**
+ * The connection is created LAZILY, on first use rather than on import.
+ *
+ * That matters for the web app: a page that imports this must still be able to
+ * render when DATABASE_URL isn't set, so it can show setup instructions instead
+ * of crashing with a stack trace. Throwing at import time would take the whole
+ * app down before any component ran.
+ */
+
+let _sql: ReturnType<typeof postgres> | null = null
+let _db: ReturnType<typeof drizzle<typeof schema>> | null = null
+
+export const isDbConfigured = (): boolean => Boolean(process.env.DATABASE_URL)
+
+export function getSql() {
+  if (!_sql) {
+    const url = process.env.DATABASE_URL
+    if (!url) {
+      throw new Error('DATABASE_URL is not set. Copy .env.example to .env and fill it in.')
+    }
+    // max:1 keeps connection count low enough for serverless Postgres free
+    // tiers when the cron and a dev server run at the same time.
+    _sql = postgres(url, { max: 1 })
+  }
+  return _sql
 }
 
-// max:1 keeps the connection count low enough for serverless Postgres free
-// tiers (Neon, Supabase) when the cron and a dev server run at the same time.
-export const sql = postgres(url, { max: 1 })
-export const db = drizzle(sql, { schema })
+export function getDb() {
+  if (!_db) _db = drizzle(getSql(), { schema })
+  return _db
+}
+
+/** Close the pool. Scripts should call this; the web app should not. */
+export async function closeDb() {
+  if (_sql) {
+    await _sql.end()
+    _sql = null
+    _db = null
+  }
+}
+
 export { schema }

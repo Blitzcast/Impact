@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import {
   pgTable, pgEnum, uuid, text, integer, bigint, boolean,
   timestamp, date, numeric, uniqueIndex, index, primaryKey,
@@ -82,7 +83,7 @@ export const artists = pgTable('artists', {
   listedAt: timestamp('listed_at', { withTimezone: true }).notNull().defaultNow(),
   // What the lister paid to list. A sink, a spam brake, and a price tag on
   // listing impersonator profiles - one column doing three jobs.
-  listingFeeMicros: bigint('listing_fee_micros', { mode: 'bigint' }).notNull().default(0n),
+  listingFeeMicros: bigint('listing_fee_micros', { mode: 'bigint' }).notNull().default(sql`0`),
 
   // Artist claimed their own page. Claimed artists earn a cut of fees on their
   // own volume, which turns them from hostile into a distribution channel.
@@ -110,6 +111,20 @@ export const artistSnapshots = pgTable('artist_snapshots', {
   source: text('source').notNull().default('spotify'),
   followers: bigint('followers', { mode: 'bigint' }),
   popularity: integer('popularity'),
+
+  /**
+   * Daily CLOSING price and supply.
+   *
+   * Fine-grained price history already lives in `trades` (supplyBefore /
+   * supplyAfter / createdAt), so nothing is lost without these. They exist for
+   * two practical reasons: charting a year shouldn't mean replaying every
+   * trade, and days with no trades still need a point. Storing them beside
+   * followers also makes the core "market price vs fundamentals" chart a
+   * single query against one table.
+   */
+  supply: bigint('supply', { mode: 'bigint' }),
+  priceMicros: bigint('price_micros', { mode: 'bigint' }),
+
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   // Makes the job safely re-runnable - run it five times in a day, still one row.
@@ -190,8 +205,8 @@ export const ledgerEntries = pgTable('ledger_entries', {
 export const positions = pgTable('positions', {
   userId: uuid('user_id').notNull().references(() => users.id),
   artistId: uuid('artist_id').notNull().references(() => artists.id),
-  shares: bigint('shares', { mode: 'bigint' }).notNull().default(0n),
-  costBasisMicros: bigint('cost_basis_micros', { mode: 'bigint' }).notNull().default(0n),
+  shares: bigint('shares', { mode: 'bigint' }).notNull().default(sql`0`),
+  costBasisMicros: bigint('cost_basis_micros', { mode: 'bigint' }).notNull().default(sql`0`),
   // Sell cooldown: makes wash trading bleed fees instead of being free.
   lastBuyAt: timestamp('last_buy_at', { withTimezone: true }),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -208,7 +223,7 @@ export const seasons = pgTable('seasons', {
   name: text('name').notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
   endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
-  entryFeeMicros: bigint('entry_fee_micros', { mode: 'bigint' }).notNull().default(0n),
+  entryFeeMicros: bigint('entry_fee_micros', { mode: 'bigint' }).notNull().default(sql`0`),
   prizeDescription: text('prize_description'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
@@ -217,6 +232,6 @@ export const seasonEntries = pgTable('season_entries', {
   seasonId: uuid('season_id').notNull().references(() => seasons.id, { onDelete: 'cascade' }),
   userId: uuid('user_id').notNull().references(() => users.id),
   // Time-weighted, not a snapshot of final value.
-  scoreMicros: bigint('score_micros', { mode: 'bigint' }).notNull().default(0n),
+  scoreMicros: bigint('score_micros', { mode: 'bigint' }).notNull().default(sql`0`),
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [primaryKey({ columns: [t.seasonId, t.userId] })])

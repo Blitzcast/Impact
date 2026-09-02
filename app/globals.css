@@ -1,0 +1,285 @@
+/*
+ * Design system.
+ *
+ * Register: trading terminal. Dense, numeric, cold, fast. Not friendly SaaS.
+ * The product is a market and it should feel like one.
+ *
+ * Rules this follows, deliberately:
+ *   - One accent, used only for interaction. Colour is for meaning, not decoration.
+ *   - Movement colours (up/down) are desaturated. Neon green reads as a toy.
+ *   - Tabular numerals everywhere a number appears, so digits never shift.
+ *   - Hairline dividers at low contrast. No shadows, no gradients, no glass.
+ *   - Radius maxes out at 3px. Round corners belong on cards, and cards are
+ *     the wrong shape for a market.
+ *   - Motion: 120-180ms, ease-out, transform/opacity only. Nothing animates in
+ *     on load.
+ */
+
+:root {
+  --bg: #08080a;
+  --surface: #101013;
+  --surface-hover: #16161a;
+  --line: #1e1e23;
+  --line-strong: #2a2a31;
+
+  --text: #ededf0;
+  --text-dim: #8b8b96;
+  --text-faint: #56565f;
+
+  --up: #3fb950;
+  --down: #f85149;
+  --accent: #e8c468;
+
+  --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every number in this app is tabular. Digits must never change width. */
+.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* --- shell ---------------------------------------------------------------- */
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.wordmark {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  gap: 22px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.nav a { transition: color 140ms var(--ease); }
+.nav a:hover { color: var(--text); }
+.nav a[data-active] { color: var(--text); }
+
+/* --- section headings ----------------------------------------------------- */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 28px 0 12px;
+}
+
+/* --- market table --------------------------------------------------------- */
+
+.market {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.market thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: right;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.market thead th:nth-child(1),
+.market thead th:nth-child(2) { text-align: left; }
+
+.market tbody tr {
+  border-bottom: 1px solid var(--line);
+  transition: background 120ms var(--ease);
+}
+
+.market tbody tr:hover { background: var(--surface-hover); }
+
+.market td {
+  padding: 11px 0;
+  text-align: right;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.market td:nth-child(1),
+.market td:nth-child(2) { text-align: left; }
+
+.rank {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  width: 40px;
+  font-variant-numeric: tabular-nums;
+}
+
+.artist-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-right: 24px;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-faint);
+  background: var(--surface);
+}
+
+.artist-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.price { font-size: 13px; }
+.secondary { font-size: 12px; color: var(--text-dim); }
+
+.delta { font-size: 12px; }
+.delta[data-dir="up"] { color: var(--up); }
+.delta[data-dir="down"] { color: var(--down); }
+.delta[data-dir="flat"] { color: var(--text-faint); }
+
+/* Unverified is a warning, not a block - most impersonators are tiny, but so
+   are most real micro-artists. */
+.tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 2px;
+  padding: 1px 4px;
+  flex-shrink: 0;
+}
+
+/* --- empty / setup state -------------------------------------------------- */
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  padding: 28px;
+  margin: 32px 0;
+}
+
+.panel h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.panel p {
+  margin: 0 0 18px;
+  color: var(--text-dim);
+  max-width: 62ch;
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 14px 30px;
+  color: var(--text-dim);
+}
+
+.steps li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 1.5px 5px;
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

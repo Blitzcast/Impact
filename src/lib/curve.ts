@@ -1,6 +1,6 @@
 import {
   SLOPE_MICROS, SEED_K, MIN_SEED_SUPPLY, FEE_BPS,
-} from './config.js'
+} from './config'
 
 /**
  * Bonding curve math. Every function here is exact bigint arithmetic - there

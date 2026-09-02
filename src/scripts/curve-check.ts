@@ -1,8 +1,8 @@
 import {
   seedSupplyFor, spotPriceMicros, marketCapMicros,
   buyCostMicros, sellProceedsMicros, sharesForBudget, feeOn, formatMicros,
-} from '../lib/curve.js'
-import { STARTING_BALANCE_MICROS } from '../lib/config.js'
+} from '../lib/curve'
+import { STARTING_BALANCE_MICROS } from '../lib/config'
 
 /**
  * Sanity check on the economy. No database, no network - pure math.
